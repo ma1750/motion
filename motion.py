@@ -24,14 +24,18 @@ def expandation(img, y, x, padding, magnification):
     expanded_img = cv2.resize(selected_img, (int((y_ub-y_lb)*magnification), int((x_ub-x_lb)*magnification)))
     padding = int(padding*magnification)
 
-    x_lb = x-padding
-    x_ub = x+padding
-    y_lb = y-padding
-    y_ub = y+padding
+    x_lb = max(x-padding, 0)
+    x_ub = min(x+padding, w-1)
+    y_lb = max(y-padding, 0)
+    y_ub = min(y+padding, h-1)
 
     yy, xx = img[y_lb:y_ub, x_lb:x_ub].shape[:2]
     e_h, e_w = expanded_img.shape[:2]
-    img[y_lb:y_ub, x_lb:x_ub] = expanded_img[e_h-yy:e_h, e_w-xx:e_w]
+    try :
+        img[y_lb:y_ub, x_lb:x_ub] = expanded_img[(e_h-yy):e_h, (e_w-xx):e_w]
+    except ValueError:
+        cv2.imwrite("./y{}_x{}.png".format(y, x), expanded_img)
+        #print('y_lb{}, y_ub{}, x_lb{}, x_ub{}\n'.format(y_lb, y_ub, x_lb, x_ub))
     return img
 
 # positions配列のlabelという名前の要素について
@@ -66,6 +70,7 @@ def expand_video(video_path, side_length, magnification):
         }
         positions.append(m_pos)
 
+    fuck = []
     max_positions = []
     for i in range(frame_length-1):
         distance = {
@@ -76,7 +81,12 @@ def expand_video(video_path, side_length, magnification):
             'r_leg'  : get_distance(positions, i, 'r_leg'),
         }
         max_distance = max((v, k) for k, v in distance.items())[1]
+        fuck.append(max_distance)
         max_positions.append(positions[i].get(max_distance))
+    
+    with open('max_parts.txt', 'w') as f:
+        for i in fuck:
+            f.write('{}\n'.format(i))
 
     cap = cv2.VideoCapture(video_path)
     ret, frame = cap.read()
@@ -98,7 +108,7 @@ def rename_files():
     subprocess.run(['sh', 'edit.sh'])
 
 if __name__ == '__main__':
-    print('video_path >> ', end="")
+    '''print('video_path >> ', end="")
     video_path = input()
 
     print('side_length >> ', end="")
@@ -108,4 +118,6 @@ if __name__ == '__main__':
     magnification = float(input())
 
     #rename_files()
-    expand_video(video_path, side_length, magnification)
+    expand_video(video_path, side_length, magnification)'''
+
+    expand_video('hemmi', 400, 1.5)
