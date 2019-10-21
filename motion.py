@@ -5,6 +5,7 @@ import subprocess
 
 import cv2
 
+import math
 
 # (x,y)を中心に1辺paddingの正方形を抽出し
 # magnification倍に拡大したものを上書きして描画したデータを返す
@@ -36,8 +37,8 @@ def expandation(img, y, x, padding, magnification):
 # positions配列のlabelという名前の要素について
 # id+1番目とid番目の距離を返す
 def get_distance(positions, id, label):
-    return ((positions[id+1].get(label)[1] - positions[id].get(label)[1])**2 \
-    - (positions[id+1].get(label)[0] - positions[id].get(label)[0])**2)**0.5
+    return math.sqrt(math.fabs((positions[id+1].get(label)[1] - positions[id].get(label)[1])**2 \
+    - (positions[id+1].get(label)[0] - positions[id].get(label)[0])**2))
 
 
 # video_pathが指すvideoから
@@ -74,7 +75,7 @@ def expand_video(video_path, side_length, magnification):
             'l_leg'  : get_distance(positions, i, 'l_leg'),
             'r_leg'  : get_distance(positions, i, 'r_leg'),
         }
-        max_distance = max(distance)
+        max_distance = max((v, k) for k, v in distance.items())[1]
         max_positions.append(positions[i].get(max_distance))
 
     cap = cv2.VideoCapture(video_path)
