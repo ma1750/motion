@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import glob
 import json
+import math
 import subprocess
 
 import cv2
 
-import math
 
-# (x,y)を中心に1辺paddingの正方形を抽出し
-# magnification倍に拡大したものを上書きして描画したデータを返す
 def expandation(img, y, x, padding, magnification):
+    '''
+    (x,y)を中心に1辺paddingの正方形を抽出し
+    magnification倍に拡大したものを上書きして描画したデータを返す
+    '''
     # img = cv2.imread(img_path)
     h, w = img.shape[:2]
     padding //= 2
@@ -38,17 +40,21 @@ def expandation(img, y, x, padding, magnification):
         #print('y_lb{}, y_ub{}, x_lb{}, x_ub{}\n'.format(y_lb, y_ub, x_lb, x_ub))
     return img
 
-# positions配列のlabelという名前の要素について
-# id+1番目とid番目の距離を返す
 def get_distance(positions, id, label):
+    '''
+    positions配列のlabelという名前の要素について
+    id+1番目とid番目の距離を返す
+    '''
     return math.sqrt(math.fabs((positions[id+1].get(label)[1] - positions[id].get(label)[1])**2 \
     - (positions[id+1].get(label)[0] - positions[id].get(label)[0])**2))
 
 
-# video_pathが指すvideoから
-# 1辺side_lengthの正方形を選択し
-# magnification倍したvideoを書き出す
 def expand_video(video_path, side_length, magnification):
+    '''
+    video_pathが指すvideoから
+    1辺side_lengthの正方形を選択し
+    magnification倍したvideoを書き出す
+    '''
     positions = []
 
     dirpath = "./video_hand/"
@@ -83,7 +89,7 @@ def expand_video(video_path, side_length, magnification):
         max_distance = max((v, k) for k, v in distance.items())[1]
         fuck.append(max_distance)
         max_positions.append(positions[i].get(max_distance))
-    
+
     with open('max_parts.txt', 'w') as f:
         for i in fuck:
             f.write('{}\n'.format(i))
@@ -102,9 +108,11 @@ def expand_video(video_path, side_length, magnification):
     out.release()
 
 
-# `video_0000123_keypoints.json`のようなファイルを
-# `123.json`にリネームする`edit.sh`を実行する
 def rename_files():
+    '''
+    `video_0000123_keypoints.json`のようなファイルを
+    `123.json`にリネームする`edit.sh`を実行する
+    '''
     subprocess.run(['sh', 'edit.sh'])
 
 if __name__ == '__main__':
