@@ -74,7 +74,8 @@ def expandation(img, y, x, padding, magnification):
     try:
         'ちょっとわかんない'
         img[y_lb:y_lb+ey_ub-ey_lb, x_lb:x_ub] = expanded_img[ey_lb:ey_ub, ex_lb:ex_ub]
-    except:
+    except Exception as e:
+        print(e)
         print('fucked frame')
         cv2.imwrite('./y{}_x{}.png'.format(y, x), expanded_img)
         with open('fuck.txt', 'a') as f:
@@ -146,7 +147,7 @@ def expand_video(video_path, side_length, magnification):
     ret, frame = cap.read()
     i = 0
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    out = cv2.VideoWriter(f'{dir_path}_out.mp4', fourcc, fps, (H, W))
+    out = cv2.VideoWriter(f'{dir_path}_out.mp4', fourcc, fps, (W, H))
 
     for i in range(frame_length-1):
         frame = expandation(frame, max_positions[i][1], max_positions[i][0], side_length, magnification)
